@@ -7,7 +7,7 @@ class SQLInjectionScanner:
     def __init__(self, root):
         self.root = root
         self.root.title("SQL Injection Scanner")
-        self.root.geometry("550x300")
+        self.root.geometry("550x400")
         self.root.configure(bg="#363636")
 
         self.title_label = tk.Label(root, text="SQL Injection Scanner", font=("Helvetica", 16, "bold"), bg="#363636", fg="orange")
@@ -29,7 +29,7 @@ class SQLInjectionScanner:
         self.scan_button = tk.Button(root, text="Scan", command=self.scan_directory, bg="#363636", fg="orange")
         self.scan_button.pack()
 
-        self.results_text = scrolledtext.ScrolledText(root, width=60, height=10, bg="gray", fg="black") 
+        self.results_text = scrolledtext.ScrolledText(root, width=60, height=15, bg="gray", fg="black") 
         self.results_text.pack()
 
     def browse_directory(self):
@@ -55,7 +55,9 @@ class SQLInjectionScanner:
                     self.results_text.insert(tk.END, f"Vulnerabilities detected in ")
                     self.results_text.insert(tk.END, file, 'filename')
                     self.results_text.insert(tk.END, f":\n")
-                    self.results_text.insert(tk.END, f" - {', '.join(vulnerabilities)}\n\n")
+                    for vulnerability, line_number in vulnerabilities:
+                        self.results_text.insert(tk.END, f" - {vulnerability} at line {line_number}\n")
+                    self.results_text.insert(tk.END, "\n")
                     
         if not vulnerabilities_found:
             self.results_text.insert(tk.END, "No SQL Injection vulnerabilities detected.")
@@ -65,23 +67,20 @@ class SQLInjectionScanner:
     def scan_file(self, file_path):
         try:
             with open(file_path, "r", encoding="utf-8") as file:
-                code = file.read()
+                code_lines = file.readlines()
                 vulnerabilities = []
 
-                # Pattern to detect improper escaping of special characters
-                ESCAPE_CHAR_VULNERABILITY_PATTERN = r"(?:query\s*=\s*\".*?\".*?\+.*?\+\s*\".*?\")"
-                if re.search(ESCAPE_CHAR_VULNERABILITY_PATTERN, code, re.IGNORECASE):
-                    vulnerabilities.append("Escape Character Misuse Vulnerability")
+                # Patterns to detect vulnerabilities
+                patterns = [
+                    (r"(?:query\s*=\s*\".*?\".*?\+.*?\+\s*\".*?\")", "Escape Character Misuse Vulnerability"),
+                    (r"(?:query\s*=\s*\".*?\".*?\%.*?\".*?\")", "Dynamic SQL Type Handling Vulnerability"),
+                    (r"(SELECT|UPDATE|DELETE|INSERT)\s+\*\s+FROM\s+\w+\s+WHERE\s+\w+\s*=\s*'.*?'", "Direct Concatenation SQL Injection Vulnerability")
+                ]
 
-                # Pattern to detect improper handling of dynamic SQL types
-                DYNAMIC_SQL_TYPE_VULNERABILITY_PATTERN = r"(?:query\s*=\s*\".*?\".*?\%.*?\".*?\")"
-                if re.search(DYNAMIC_SQL_TYPE_VULNERABILITY_PATTERN, code, re.IGNORECASE):
-                    vulnerabilities.append("Dynamic SQL Type Handling Vulnerability")
-
-                # Pattern to detect basic SQL injection vulnerability via direct concatenation
-                SQL_INJECTION_DIRECT_CONCAT_PATTERN = r"(SELECT|UPDATE|DELETE|INSERT)\s+\*\s+FROM\s+\w+\s+WHERE\s+\w+\s*=\s*'.*?'"
-                if re.search(SQL_INJECTION_DIRECT_CONCAT_PATTERN, code, re.IGNORECASE):
-                    vulnerabilities.append("Direct Concatenation SQL Injection Vulnerability")
+                for line_number, line in enumerate(code_lines, start=1):
+                    for pattern, vulnerability in patterns:
+                        if re.search(pattern, line, re.IGNORECASE):
+                            vulnerabilities.append((vulnerability, line_number))
                     
                 return vulnerabilities
         except Exception as e:
