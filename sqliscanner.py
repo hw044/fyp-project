@@ -74,7 +74,16 @@ class SQLInjectionScanner:
                 patterns = [
                     (r"(?:query\s*=\s*\".*?\".*?\+.*?\+\s*\".*?\")", "Escape Character Misuse Vulnerability"),
                     (r"(?:query\s*=\s*\".*?\".*?\%.*?\".*?\")", "Dynamic SQL Type Handling Vulnerability"),
-                    (r"(SELECT|UPDATE|DELETE|INSERT)\s+\*\s+FROM\s+\w+\s+WHERE\s+\w+\s*=\s*'.*?'", "Direct Concatenation SQL Injection Vulnerability")
+                    (r"(SELECT|UPDATE|DELETE|INSERT)\s+\*\s+FROM\s+\w+\s+WHERE\s+\w+\s*=\s*'.*?'", "Direct Concatenation SQL Injection Vulnerability"),
+                    (r"(\bexec\b\s+@\w+|\bexecute\b\s+@\w+)", "Exec/Execute Command Vulnerability"),
+                    (r"(\bexec\b\s+@\w+\s+\bexec\b\s+\@\w+)", "Multiple Exec/Execute Command Vulnerability"),
+                    (r"(SELECT\s+.+\s+FROM\s+\w+\s+WHERE\s+\w+\s*=\s*\"\s*.+\s*\")", "String Based Injection Vulnerability"),
+                    (r"(INSERT\s+INTO\s+\w+\s+\(.+\)\s+VALUES\s+\(.+\)\s*;?\s*)", "Insert Statement Injection Vulnerability"),
+                    (r"(UPDATE\s+\w+\s+SET\s+\w+\s*=\s*'.+?'\s+WHERE\s+\w+\s*=\s*'.+?'\s*;?)", "Update Statement Injection Vulnerability"),
+                    (r"(DELETE\s+FROM\s+\w+\s+WHERE\s+\w+\s*=\s*'.+?'\s*;?)", "Delete Statement Injection Vulnerability"),
+                    (r"(SELECT\s+\*\s+FROM\s+\w+\s+WHERE\s+\w+\s*LIKE\s*'.*?'\s*;?)", "LIKE Clause Injection Vulnerability"),
+                    (r"(SELECT\s+.+\s+FROM\s+\w+\s+WHERE\s+\w+\s*=\s*\d+)", "Numeric Based Injection Vulnerability"),
+                    (r"(SELECT\s+.+\s+FROM\s+\w+\s+WHERE\s+\w+\s*IN\s*\(.+?\))", "IN Clause Injection Vulnerability")
                 ]
 
                 for line_number, line in enumerate(code_lines, start=1):
