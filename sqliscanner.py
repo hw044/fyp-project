@@ -6,18 +6,18 @@ import re
 class SQLInjectionScanner:
     def __init__(self, root):
         self.root = root
-        self.root.title("Counter-SQLi")
+        self.root.title("ASIS")
         self.root.geometry("550x400")
         self.root.configure(bg="#363636")
 
         self.title_frame = tk.Frame(root, bg="#363636")
         self.title_frame.pack(pady=10)
 
-        self.title_label = tk.Label(self.title_frame, text="Counter-SQLi", font=("Helvetica", 16, "bold"), bg="#363636", fg="orange")
+        self.title_label = tk.Label(self.title_frame, text="A SQL Injection Scanner", font=("Helvetica", 16, "bold"), bg="#363636", fg="orange")
         self.title_label.pack(side="left")
 
-        self.subtitle_label = tk.Label(self.title_frame, text="(a SQL Injection Scanner)", font=("Helvetica", 6), bg="#363636", fg="orange")
-        self.subtitle_label.pack(side="left", padx=(0, 0))
+        self.subtitle_label = tk.Label(self.title_frame, text="or ASIS", font=("Helvetica", 7), bg="#363636", fg="orange")
+        self.subtitle_label.pack(side="left")
 
         self.dir_frame = tk.Frame(root, bg="#363636")
         self.dir_frame.pack(pady=10)
